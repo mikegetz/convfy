@@ -70,8 +70,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          name: "Convfy Release ${{ env.VERSION }}"
+          tag_name: "${{ env.VERSION }}" 
+          name: "Convfy Release ${{ env.VERSION }}" 
           body: "Automated release of Convfy CLI version **${{ env.VERSION }}**."
           draft: false
           prerelease: false
