@@ -2,9 +2,9 @@ name: Build and Release Convfy
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:  # Allows manual triggering of the workflow
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   build:
@@ -17,23 +17,31 @@ jobs:
         goarch: [amd64, arm64]
         exclude:
           - goos: windows
-            goarch: arm64  # Windows ARM64 not common for CLI tools
+            goarch: arm64
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensure we fetch all tags
+
+      - name: Extract version from Git tag
+        id: version
+        run: echo "VERSION=$(git describe --tags --always --match 'v*')" >> $GITHUB_ENV
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23.3'  # Set to your Go version
+          go-version: '1.23.3' 
 
       - name: Build binary
         run: |
           mkdir -p dist
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/convfy-${{ matrix.goos }}-${{ matrix.goarch }}
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build \
+            -ldflags "-X main.Version=${{ env.VERSION }}" \
+            -o dist/convfy-${{ env.VERSION }}-${{ matrix.goos }}-${{ matrix.goarch }}
 
-      - name: Upload artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.goos }}-${{ matrix.goarch }}
@@ -42,25 +50,25 @@ jobs:
   release:
     name: Create GitHub Release
     needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download build artifacts
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
 
-      - name: Generate version tag
-        id: version
-        run: echo "VERSION=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.VERSION }}
-          name: "Convfy Release v${{ env.VERSION }}"
-          body: "Automated release of Convfy CLI"
+          tag_name: ${{ env.VERSION }}
+          name: "Convfy Release ${{ env.VERSION }}"
+          body: "Automated release of Convfy CLI version ${{ env.VERSION }}"
           draft: false
           prerelease: false
           files: dist/*
