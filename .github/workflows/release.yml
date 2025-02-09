@@ -48,8 +48,8 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: binaries
           path: dist
+          merge-multiple: true
 
       - name: Generate version tag
         id: version
