@@ -1,1 +1,4 @@
 .local/
+*.yml
+*.yaml
+*.json
