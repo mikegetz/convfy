@@ -27,7 +27,7 @@ jobs:
 
       - name: Extract version from Git tag
         id: version
-        run: echo "VERSION=$(git describe --tags --always --match 'v*')" >> $GITHUB_ENV
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -57,6 +57,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Extract version from Git tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -68,7 +72,7 @@ jobs:
         with:
           tag_name: ${{ env.VERSION }}
           name: "Convfy Release ${{ env.VERSION }}"
-          body: "Automated release of Convfy CLI version ${{ env.VERSION }}"
+          body: "Automated release of Convfy CLI version **${{ env.VERSION }}**."
           draft: false
           prerelease: false
           files: dist/*
