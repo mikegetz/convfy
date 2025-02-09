@@ -7,6 +7,9 @@ import (
 	"github.com/MGuitar24/confconv"
 )
 
+// Version variable (will be set via -ldflags)
+var Version = "dev" // Default value for local builds
+
 func main() {
 	if len(os.Args) < 2 {
 		printHelp()
@@ -30,6 +33,7 @@ func validateArgs(flag string, fileName string) {
 }
 
 func printHelp() {
+	fmt.Printf("Convfy CLI version: %s\n", Version)
 	fmt.Println("Usage: confconv [flag] [file]")
 	fmt.Println("Flags:")
 	fmt.Println("  -j: Convert JSON to YAML")
