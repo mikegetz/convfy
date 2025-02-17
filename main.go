@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/MGuitar24/confconv"
+	"github.com/mikegetz/confconv"
 )
 
 // Version variable (will be set via -ldflags)
