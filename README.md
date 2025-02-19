@@ -8,7 +8,8 @@ Convfy is a simple CLI tool for converting various config file formats.
 TODO
 
 ```sh
-brew tap
+brew tap mikegetz/convfy
+brew install convfy
 ```
 
 ### Shell
